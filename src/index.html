@@ -1,85 +1,104 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>二维码扫描</title>
-  <link rel="stylesheet" href="./css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>车间内网 - 零件扫码查询</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- 引入 html5-qrcode 库 -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <div class="container">
-    <!-- 头部 -->
-    <header class="header">
-      <h1>二维码扫描</h1>
-    </header>
+    <div class="container">
+        <header class="app-header">
+            <h1><i class="fas fa-industry"></i> 零件扫码查询系统</h1>
+            <p class="subtitle">对准工件二维码，自动识别并查询</p>
+        </header>
 
-    <!-- 主内容区 -->
-    <main class="main">
-      <!-- 扫描按钮 -->
-      <div class="scan-section">
-        <button id="scanBtn" class="scan-btn">
-          <svg class="scan-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="7" y1="7" x2="17" y2="17"></line>
-            <line x1="17" y1="7" x2="7" y2="17"></line>
-          </svg>
-          <span>开始扫描</span>
-        </button>
-      </div>
+        <main class="main-content">
+            <!-- 扫码区域 -->
+            <section class="scanner-panel">
+                <h2><i class="fas fa-camera"></i> 扫码区域</h2>
+                <div class="scanner-container">
+                    <div id="qr-reader"></div>
+                    <div class="scanner-overlay">
+                        <div class="scan-frame">
+                            <div class="corner top-left"></div>
+                            <div class="corner top-right"></div>
+                            <div class="corner bottom-left"></div>
+                            <div class="corner bottom-right"></div>
+                            <div class="scan-line"></div>
+                        </div>
+                        <p class="scan-hint"><i class="fas fa-lightbulb"></i> 将二维码置于框内，保持光线充足</p>
+                    </div>
+                </div>
+                <div class="camera-controls">
+                    <select id="camera-select" class="camera-select">
+                        <option value="">选择摄像头...</option>
+                    </select>
+                    <button id="btn-toggle-camera" class="btn btn-control">
+                        <i class="fas fa-sync-alt"></i> 切换摄像头
+                    </button>
+                    <button id="btn-stop-scanner" class="btn btn-stop" style="display: none;">
+                        <i class="fas fa-stop"></i> 停止扫描
+                    </button>
+                </div>
+            </section>
 
-      <!-- 扫描结果 -->
-      <div id="resultSection" class="result-section hidden">
-        <div class="result-header">
-          <h2>扫描结果</h2>
-          <button id="clearBtn" class="clear-btn">清除</button>
-        </div>
-        <div id="resultContent" class="result-content"></div>
-        <div class="result-actions">
-          <button id="copyBtn" class="action-btn">复制结果</button>
-          <button id="rescanBtn" class="action-btn">重新扫描</button>
-          <button id="openBtn" class="action-btn hidden">打开链接</button>
-        </div>
-      </div>
+            <!-- 结果显示与查询 -->
+            <section class="result-panel">
+                <h2><i class="fas fa-search"></i> 扫描结果与查询</h2>
+                <div class="result-display">
+                    <div class="form-group">
+                        <label for="part-number"><i class="fas fa-hashtag"></i> 零件号：</label>
+                        <input type="text" id="part-number" placeholder="扫描后自动填充" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="order-number"><i class="fas fa-file-invoice"></i> 订单号：</label>
+                        <input type="text" id="order-number" placeholder="扫描后自动填充" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="query-status"><i class="fas fa-info-circle"></i> 状态：</label>
+                        <div id="query-status" class="status idle">等待扫描...</div>
+                    </div>
+                    <button id="btn-query" class="btn btn-query" disabled>
+                        <i class="fas fa-database"></i> 查询订单详情
+                    </button>
+                </div>
 
-      <!-- 历史记录 -->
-      <div class="history-section">
-        <div class="history-header">
-          <h2>历史记录</h2>
-          <button id="clearHistoryBtn" class="clear-btn">清空</button>
-        </div>
-        <div id="historyList" class="history-list">
-          <p class="no-history">暂无扫描历史</p>
-        </div>
-      </div>
-    </main>
+                <!-- 查询结果展示 -->
+                <div class="query-result" id="query-result" style="display: none;">
+                    <h3><i class="fas fa-clipboard-list"></i> 订单信息</h3>
+                    <div class="result-grid" id="result-content">
+                        <!-- 查询结果将通过JS动态填充 -->
+                    </div>
+                </div>
+            </section>
 
-    <!-- 扫描界面 -->
-    <div id="scanOverlay" class="scan-overlay hidden">
-      <div class="scan-header">
-        <button id="closeScanBtn" class="close-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-        <button id="toggleFlashBtn" class="flash-btn">
-          <svg id="flashIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="13" y1="10" x2="21" y2="2"></line>
-            <line x1="11" y1="14" x2="3" y2="22"></line>
-            <line x1="11" y1="14" x2="3" y2="14"></line>
-            <line x1="19" y1="22" x2="13" y2="16"></line>
-          </svg>
-        </button>
-      </div>
-      <div class="scan-frame">
-        <div class="scan-box">
-          <div class="scan-line"></div>
-        </div>
-        <p class="scan-tip">将二维码对准扫描框</p>
-      </div>
+            <!-- 历史记录 -->
+            <section class="history-panel">
+                <div class="history-header">
+                    <h3><i class="fas fa-history"></i> 扫描历史</h3>
+                    <button id="btn-clear-history" class="btn btn-warning">
+                        <i class="fas fa-trash-alt"></i> 清空
+                    </button>
+                </div>
+                <div class="history-list-container">
+                    <ul id="history-list">
+                        <!-- 历史记录将通过JS动态添加 -->
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>部署于车间内网 | 使用纯网页技术实现 | 请确保已连接WiFi: <strong id="current-wifi">车间内网</strong></p>
+            <p class="footer-note"><i class="fas fa-exclamation-triangle"></i> 注意：此页面需在 <strong>HTTPS</strong> 或 <strong>localhost</strong> 环境下运行</p>
+        </footer>
     </div>
-  </div>
 
-  <script type="module" src="./js/main.js"></script>
+    <!-- 引入自定义JS -->
+    <script src="scanner.js"></script>
 </body>
 </html>
