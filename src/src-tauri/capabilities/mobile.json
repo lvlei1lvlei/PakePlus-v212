@@ -1,0 +1,9 @@
+{
+  "identifier": "mobile",
+  "description": "Capability for mobile permissions",
+  "local": true,
+  "permissions": [
+    "barcode-scanner:default",
+    "barcode-scanner:allow-scan"
+  ]
+}
