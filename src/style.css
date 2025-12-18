@@ -1,21 +1,476 @@
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-body { background: #f5f7fa; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-.container { width: 100%; max-width: 500px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }
-header { background: linear-gradient(90deg, #4b6cb7, #182848); color: white; padding: 25px; text-align: center; }
-header h1 { font-size: 24px; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-.subtitle { opacity: 0.9; font-size: 14px; }
-main { padding: 25px; }
-.scanner-section { text-align: center; margin-bottom: 30px; }
-.btn { padding: 14px 28px; border: none; border-radius: 50px; font-size: 16px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; }
-.btn-primary { background: linear-gradient(90deg, #4b6cb7, #3a56a4); color: white; }
-.btn-primary:hover { background: linear-gradient(90deg, #3a56a4, #2d4587); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(58,86,164,0.4); }
-.btn-secondary { background: #6c757d; color: white; }
-.btn-warning { background: #ffc107; color: #212529; }
-.hint { margin-top: 15px; color: #666; font-size: 14px; }
-.result-section, .history-section { background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 25px; }
-.result-section h2, .history-section h3 { color: #333; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-textarea { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; resize: none; margin-bottom: 15px; }
-.button-group { display: flex; gap: 12px; }
-#historyList { list-style: none; margin-bottom: 15px; }
-#historyList li { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
-footer { text-align: center; padding: 20px; color: #888; font-size: 14px; border-top: 1px solid #f0f0f0; }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    color: #333;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    margin: 10px;
+}
+
+/* 头部样式 */
+.app-header {
+    background: linear-gradient(90deg, #182848, #4b6cb7);
+    color: white;
+    padding: 24px 30px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.app-header h1 {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.subtitle {
+    opacity: 0.9;
+    font-size: 1rem;
+}
+
+/* 主内容区 */
+.main-content {
+    padding: 25px;
+}
+
+section {
+    margin-bottom: 30px;
+    background: white;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+    border: 1px solid #f0f0f0;
+}
+
+h2, h3 {
+    color: #2d3748;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+h2 i, h3 i {
+    color: #4b6cb7;
+}
+
+/* 扫码区域 */
+.scanner-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 20px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#qr-reader {
+    width: 100% !important;
+    border: none !important;
+}
+
+#qr-reader__dashboard_section {
+    display: none; /* 隐藏库自带的面板 */
+}
+
+.scanner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+}
+
+.scan-frame {
+    width: 250px;
+    height: 250px;
+    border: 2px solid transparent;
+    position: relative;
+}
+
+.scan-frame .corner {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 4px solid #00ff9d;
+}
+
+.top-left {
+    top: -2px;
+    left: -2px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.top-right {
+    top: -2px;
+    right: -2px;
+    border-left: none;
+    border-bottom: none;
+}
+
+.bottom-left {
+    bottom: -2px;
+    left: -2px;
+    border-right: none;
+    border-top: none;
+}
+
+.bottom-right {
+    bottom: -2px;
+    right: -2px;
+    border-left: none;
+    border-top: none;
+}
+
+.scan-line {
+    position: absolute;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, #00ff9d, transparent);
+    top: 50%;
+    animation: scanLine 2s linear infinite;
+    border-radius: 2px;
+}
+
+@keyframes scanLine {
+    0%, 100% { top: 10%; }
+    50% { top: 90%; }
+}
+
+.scan-hint {
+    color: white;
+    margin-top: 20px;
+    font-size: 1rem;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 10px 20px;
+    border-radius: 50px;
+    pointer-events: auto;
+    text-align: center;
+}
+
+/* 摄像头控制 */
+.camera-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.camera-select {
+    flex-grow: 1;
+    max-width: 300px;
+    padding: 12px 18px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    background: white;
+    color: #2d3748;
+}
+
+/* 按钮样式 */
+.btn {
+    padding: 13px 26px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1);
+}
+
+.btn:active {
+    transform: translateY(-1px);
+}
+
+.btn-control {
+    background: linear-gradient(90deg, #4299e1, #3182ce);
+    color: white;
+}
+
+.btn-stop {
+    background: linear-gradient(90deg, #f56565, #e53e3e);
+    color: white;
+}
+
+.btn-query {
+    background: linear-gradient(90deg, #48bb78, #38a169);
+    color: white;
+    width: 100%;
+    margin-top: 15px;
+    font-size: 1.1rem;
+    padding: 16px;
+}
+
+.btn-query:disabled {
+    background: #cbd5e0;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn-warning {
+    background: linear-gradient(90deg, #ed8936, #dd6b20);
+    color: white;
+}
+
+/* 结果区域 */
+.result-display {
+    background: #f7fafc;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.form-group input, .form-group .status {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+}
+
+.status {
+    text-align: center;
+    font-weight: 600;
+    padding: 15px !important;
+}
+
+.status.idle {
+    background: #fed7d7;
+    color: #c53030;
+    border-color: #fc8181;
+}
+
+.status.scanning {
+    background: #fefcbf;
+    color: #744210;
+    border-color: #f6e05e;
+}
+
+.status.success {
+    background: #c6f6d5;
+    color: #22543d;
+    border-color: #68d391;
+}
+
+/* 查询结果 */
+.query-result {
+    margin-top: 30px;
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.result-item {
+    background: white;
+    border-left: 5px solid #4b6cb7;
+    padding: 18px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.result-item .label {
+    font-size: 0.9rem;
+    color: #718096;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.result-item .value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2d3748;
+    word-break: break-all;
+}
+
+/* 历史记录 */
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.history-list-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #f7fafc;
+    padding: 10px;
+}
+
+#history-list {
+    list-style: none;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #e2e8f0;
+    transition: background 0.2s;
+}
+
+.history-item:hover {
+    background: #edf2f7;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-content {
+    flex-grow: 1;
+    word-break: break-all;
+    padding-right: 15px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    color: #2d3748;
+}
+
+.history-time {
+    font-size: 0.85rem;
+    color: #718096;
+    white-space: nowrap;
+}
+
+.history-actions button {
+    background: none;
+    border: none;
+    color: #4299e1;
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 1.1rem;
+}
+
+/* 页脚 */
+.app-footer {
+    text-align: center;
+    padding: 20px;
+    color: #718096;
+    font-size: 0.9rem;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.footer-note {
+    margin-top: 8px;
+    color: #e53e3e;
+    font-size: 0.85rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        margin: 5px;
+        border-radius: 20px;
+    }
+
+    .app-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .main-content {
+        padding: 20px;
+    }
+
+    section {
+        padding: 20px;
+    }
+
+    .scanner-container {
+        min-height: 280px;
+    }
+
+    .scan-frame {
+        width: 220px;
+        height: 220px;
+    }
+
+    .camera-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .camera-select {
+        max-width: 100%;
+    }
+
+    .result-grid {
+        grid-template-columns: 1fr;
+    }
+}
