@@ -1,0 +1,21 @@
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+body { background: #f5f7fa; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+.container { width: 100%; max-width: 500px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }
+header { background: linear-gradient(90deg, #4b6cb7, #182848); color: white; padding: 25px; text-align: center; }
+header h1 { font-size: 24px; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.subtitle { opacity: 0.9; font-size: 14px; }
+main { padding: 25px; }
+.scanner-section { text-align: center; margin-bottom: 30px; }
+.btn { padding: 14px 28px; border: none; border-radius: 50px; font-size: 16px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; }
+.btn-primary { background: linear-gradient(90deg, #4b6cb7, #3a56a4); color: white; }
+.btn-primary:hover { background: linear-gradient(90deg, #3a56a4, #2d4587); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(58,86,164,0.4); }
+.btn-secondary { background: #6c757d; color: white; }
+.btn-warning { background: #ffc107; color: #212529; }
+.hint { margin-top: 15px; color: #666; font-size: 14px; }
+.result-section, .history-section { background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 25px; }
+.result-section h2, .history-section h3 { color: #333; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+textarea { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; resize: none; margin-bottom: 15px; }
+.button-group { display: flex; gap: 12px; }
+#historyList { list-style: none; margin-bottom: 15px; }
+#historyList li { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+footer { text-align: center; padding: 20px; color: #888; font-size: 14px; border-top: 1px solid #f0f0f0; }
