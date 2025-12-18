@@ -2,7 +2,7 @@
 
 // 导入Tauri API
 import { invoke } from '@tauri-apps/api/core';
-import { permission } from '@tauri-apps/api/permission';
+import { request } from '@tauri-apps/api/permission';
 
 // DOM元素
 const scanBtn = document.getElementById('scanBtn');
@@ -77,7 +77,7 @@ async function handleScanClick() {
 // 检查相机权限
 async function checkCameraPermission() {
   try {
-    const status = await permission.request('camera');
+    const status = await request('camera');
     return status === 'granted';
   } catch (error) {
     console.error('检查相机权限出错:', error);
@@ -93,14 +93,12 @@ async function startScan() {
     // 调用Tauri条形码扫描插件
     const result = await invoke('plugin:barcode-scanner|scan', {
       formats: ['qr_code'],
-      options: {
-        android: {
-          aspectTolerance: 0.5,
-          useAutoFocus: true
-        },
-        ios: {
-          preferFrontCamera: false
-        }
+      android: {
+        aspect_tolerance: 0.5,
+        use_auto_focus: true
+      },
+      ios: {
+        prefer_front_camera: false
       }
     });
 
