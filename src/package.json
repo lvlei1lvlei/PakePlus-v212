@@ -1,0 +1,15 @@
+{
+  "name": "tauri-mobile-scanner",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "tauri android dev",
+    "build": "tauri android build"
+  },
+  "dependencies": {
+    "@tauri-apps/plugin-barcode-scanner": "^2.0.0-beta.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0-beta"
+  }
+}
