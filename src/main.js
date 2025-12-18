@@ -1,97 +1,73 @@
-const { invoke } = window.__TAURI__.core
-const { WebviewWindow } = window.__TAURI__.webviewWindow
+import { scan, SupportedFormat } from '@tauri-apps/plugin-barcode-scanner';
 
-let inputValue
-let resultElement
+const startScanBtn = document.getElementById('startScan');
+const resultTextarea = document.getElementById('result');
+const copyBtn = document.getElementById('copyBtn');
+const clearBtn = document.getElementById('clearBtn');
+const historyList = document.getElementById('historyList');
+const clearHistoryBtn = document.getElementById('clearHistoryBtn');
 
-window.addEventListener('DOMContentLoaded', () => {
-    inputValue = document.querySelector('#inputValue').value
-    resultElement = document.querySelector('#result')
-    // open url
-    document.querySelector('#openUrl').addEventListener('click', async (e) => {
-        e.preventDefault()
-        console.log('open url')
-        await invoke('open_url', {
-            url: inputValue ? inputValue : 'https://juejin.cn/',
-        })
-    })
-    // run command
-    document
-        .querySelector('#runCommand')
-        .addEventListener('click', async (e) => {
-            e.preventDefault()
-            console.log('run command')
-            const result = await invoke('run_command', {
-                command: inputValue ? inputValue : 'node -v',
-            })
-            console.log('result', result)
-            resultElement.textContent = result
-        })
-    // download file
-    document
-        .querySelector('#downloadFile')
-        .addEventListener('click', async (e) => {
-            e.preventDefault()
-            console.log('download file')
-            const result = await invoke('download_file', {
-                url: inputValue
-                    ? inputValue
-                    : 'https://gh-proxy.com/github.com/Sjj1024/PakePlus/releases/latest/download/PakePlus_0.5.30_x64-setup.exe',
-                savePath: '',
-                fileId: '1111',
-            })
-            console.log('result', result)
-            resultElement.textContent = result
-        })
-    // get exe dir
-    document
-        .querySelector('#getExeDir')
-        .addEventListener('click', async (e) => {
-            e.preventDefault()
-            console.log('get exe dir')
-            const result = await invoke('get_exe_dir')
-            console.log('result', result)
-            resultElement.textContent = result
-        })
-    // get env var
-    document
-        .querySelector('#getEnvVar')
-        .addEventListener('click', async (e) => {
-            e.preventDefault()
-            console.log('get env var')
-            const result = await invoke('get_env_var', {
-                name: inputValue ? inputValue : 'PATH',
-            })
-            console.log('result', result)
-            resultElement.textContent = result
-        })
-    // find port
-    document.querySelector('#findPort').addEventListener('click', async (e) => {
-        e.preventDefault()
-        console.log('find port')
-        const result = await invoke('find_port')
-        console.log('result', result)
-        resultElement.textContent = result
-    })
-    // open url new
-    document
-        .querySelector('#openUrlNew')
-        .addEventListener('click', async (e) => {
-            e.preventDefault()
-            console.log('open url new')
-            const webview = new WebviewWindow('my-label', {
-                url: inputValue ? inputValue : 'https://pakeplus.com/',
-                center: true,
-                width: 800,
-                height: 400,
-                focus: true,
-                title: 'PakePlus Window',
-            })
-            webview.once('tauri://created', function () {
-                console.log('new webview created')
-            })
-            webview.once('tauri://error', function (e) {
-                console.log('new webview error', e)
-            })
-        })
-})
+let scanHistory = JSON.parse(localStorage.getItem('scanHistory')) || [];
+
+function updateHistory() {
+    historyList.innerHTML = '';
+    scanHistory.slice(0, 10).forEach((item, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span>${index + 1}. ${item.length > 40 ? item.substring(0, 40) + '...' : item}</span>
+            <button class="history-copy" data-content="${item}">📋</button>
+        `;
+        historyList.appendChild(li);
+    });
+    // 为历史记录中的复制按钮添加事件
+    document.querySelectorAll('.history-copy').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const content = e.target.getAttribute('data-content');
+            navigator.clipboard.writeText(content);
+            alert('已复制到剪贴板');
+        });
+    });
+}
+
+startScanBtn.addEventListener('click', async () => {
+    try {
+        const result = await scan({
+            formats: [SupportedFormat.QRCode, SupportedFormat.Code128, SupportedFormat.EAN13],
+            windowed: false,
+            cameraDirection: 'back',
+        });
+        if (result?.content) {
+            resultTextarea.value = result.content;
+            // 保存到历史
+            if (!scanHistory.includes(result.content)) {
+                scanHistory.unshift(result.content);
+                scanHistory = scanHistory.slice(0, 20); // 保留最近20条
+                localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
+                updateHistory();
+            }
+        }
+    } catch (error) {
+        alert(`扫码失败: ${error.message}`);
+        console.error(error);
+    }
+});
+
+copyBtn.addEventListener('click', () => {
+    if (resultTextarea.value) {
+        navigator.clipboard.writeText(resultTextarea.value);
+        alert('已复制到剪贴板');
+    }
+});
+
+clearBtn.addEventListener('click', () => {
+    resultTextarea.value = '';
+});
+
+clearHistoryBtn.addEventListener('click', () => {
+    scanHistory = [];
+    localStorage.removeItem('scanHistory');
+    updateHistory();
+});
+
+// 初始化历史记录
+updateHistory();
