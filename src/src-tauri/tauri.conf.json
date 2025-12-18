@@ -1,0 +1,11 @@
+{
+  "build": {
+    "frontendDist": "../"
+  },
+  "productName": "移动端扫码测试",
+  "version": "0.1.0",
+  "identifier": "com.example.mobilescanner",
+  "plugins": {
+    "barcode-scanner": {}
+  }
+}
